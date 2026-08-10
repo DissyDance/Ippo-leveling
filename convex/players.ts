@@ -6,6 +6,7 @@
  */
 import { getAuthUserId } from '@convex-dev/auth/server'
 import { v } from 'convex/values'
+import type { Doc } from './_generated/dataModel'
 import { mutation, query } from './_generated/server'
 
 /** Le joueur courant, ou `null` si pas encore créé (auth gate → onboarding). */
@@ -18,6 +19,20 @@ export const getCurrentPlayer = query({
       .query('players')
       .withIndex('by_user', (q) => q.eq('userId', userId))
       .unique()
+  },
+})
+
+/** Historique récent des gains d'XP, pour le profil (SPEC §8.5). */
+export const listRecentXpLogs = query({
+  args: { limit: v.optional(v.number()) },
+  handler: async (ctx, args): Promise<Doc<'xpLogs'>[]> => {
+    const userId = await getAuthUserId(ctx)
+    if (!userId) return []
+    return await ctx.db
+      .query('xpLogs')
+      .withIndex('by_user_date', (q) => q.eq('userId', userId))
+      .order('desc')
+      .take(args.limit ?? 30)
   },
 })
 
