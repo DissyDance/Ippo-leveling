@@ -9,6 +9,7 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as feedback from "../feedback.js";
 import type * as http from "../http.js";
 import type * as items from "../items.js";
 import type * as model_consistency from "../model/consistency.js";
@@ -25,6 +26,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  feedback: typeof feedback;
   http: typeof http;
   items: typeof items;
   "model/consistency": typeof model_consistency;

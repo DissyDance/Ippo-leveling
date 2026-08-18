@@ -29,7 +29,7 @@ export function Button({ label, onPress, variant = 'primary', disabled = false, 
     >
       <View style={styles.inner}>
         {loading ? (
-          <ActivityIndicator color={variant === 'primary' ? Colors.onGold : Colors.textPrimary} />
+          <ActivityIndicator color={variant === 'primary' ? Colors.onPrimary : Colors.textPrimary} />
         ) : (
           <Txt variant="h3" color={LABEL_COLOR[variant]}>
             {label}
@@ -41,13 +41,13 @@ export function Button({ label, onPress, variant = 'primary', disabled = false, 
 }
 
 const LABEL_COLOR: Record<Variant, string> = {
-  primary: Colors.onGold,
+  primary: Colors.onPrimary,
   secondary: Colors.textPrimary,
   ghost: Colors.textSecondary,
 }
 
 const VARIANT_STYLE = StyleSheet.create({
-  primary: { backgroundColor: Colors.gold },
+  primary: { backgroundColor: Colors.primary },
   secondary: { backgroundColor: Colors.surfaceElevated, borderWidth: 1, borderColor: Colors.borderStrong },
   ghost: { backgroundColor: 'transparent' },
 })

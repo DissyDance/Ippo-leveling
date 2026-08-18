@@ -64,6 +64,9 @@ export default function RecordsScreen() {
             onPress={() =>
               router.push({ pathname: '/item/[id]/session', params: { id: entry.item._id } })
             }
+            onEdit={() =>
+              router.push({ pathname: '/item/[id]/edit', params: { id: entry.item._id } })
+            }
           />
         )}
         ItemSeparatorComponent={() => <View style={styles.sep} />}
@@ -77,7 +80,7 @@ export default function RecordsScreen() {
                 accessibilityRole="button"
                 style={styles.newBtn}
               >
-                <Txt variant="h3" color={Colors.onGold}>
+                <Txt variant="h3" color={Colors.onPrimary}>
                   + Nouvel exercice
                 </Txt>
               </Pressable>
@@ -101,7 +104,7 @@ export default function RecordsScreen() {
                   onPress={() => setRankFilter((r) => (r === rank ? null : rank))}
                   style={[styles.rankChip, rankFilter === rank ? styles.rankChipOn : null]}
                 >
-                  <Txt variant="label" color={rankFilter === rank ? Colors.gold : Colors.textMuted}>
+                  <Txt variant="label" color={rankFilter === rank ? Colors.primary : Colors.textMuted}>
                     {rank}
                   </Txt>
                 </Pressable>
@@ -143,7 +146,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   newBtn: {
-    backgroundColor: Colors.gold,
+    backgroundColor: Colors.primary,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     borderRadius: Radius.md,
@@ -162,7 +165,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.borderNeutral,
   },
   rankChipOn: {
-    borderColor: Colors.gold,
+    borderColor: Colors.primary,
     backgroundColor: Colors.surfaceElevated,
   },
   sortChip: {

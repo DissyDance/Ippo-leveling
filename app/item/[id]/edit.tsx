@@ -1,8 +1,9 @@
-import { useMutation } from 'convex/react'
-import { useRouter } from 'expo-router'
+import { useMutation, useQuery } from 'convex/react'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useMemo, useState } from 'react'
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { api } from '@convex/_generated/api'
+import type { Doc, Id } from '@convex/_generated/dataModel'
 import { Button } from '@/components/Button'
 import { StatPill } from '@/components/StatPill'
 import { TextField } from '@/components/TextField'
@@ -25,19 +26,55 @@ import {
 import { useResponsive } from '@/hooks/useResponsive'
 import { xpPerStat } from '@/utils/xp.utils'
 
-export default function NewItem() {
+export default function EditItem() {
+  const { id } = useLocalSearchParams<{ id: string }>()
+  const itemId = id as Id<'items'>
   const router = useRouter()
-  const { isWide } = useResponsive()
-  const createItem = useMutation(api.items.create)
+  const data = useQuery(api.items.getItem, { itemId })
+  const updateItem = useMutation(api.items.update)
+  const item = data?.item
 
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [stats, setStats] = useState<Stat[]>([])
-  const [rank, setRank] = useState<Rank>('C')
-  const [fields, setFields] = useState<FieldKey[]>([])
-  const [primary, setPrimary] = useState<FieldKey | null>(null)
-  const [direction, setDirection] = useState<Direction>('higher_better')
-  const [target, setTarget] = useState('')
+  if (data === undefined) {
+    return (
+      <View style={styles.center}>
+        <Txt variant="body" color={Colors.textSecondary}>
+          Chargement…
+        </Txt>
+      </View>
+    )
+  }
+  if (!item) {
+    return (
+      <View style={styles.center}>
+        <Txt variant="body" color={Colors.textSecondary}>
+          Exercice introuvable.
+        </Txt>
+      </View>
+    )
+  }
+
+  return <EditForm itemId={itemId} item={item} updateItem={updateItem} onDone={() => router.back()} />
+}
+
+type EditFormProps = {
+  itemId: Id<'items'>
+  item: Doc<'items'>
+  updateItem: ReturnType<typeof useMutation<typeof api.items.update>>
+  onDone: () => void
+}
+
+function EditForm({ itemId, item, updateItem, onDone }: EditFormProps) {
+  const { isWide } = useResponsive()
+  const [name, setName] = useState(item.name)
+  const [description, setDescription] = useState(item.description ?? '')
+  const [stats, setStats] = useState<Stat[]>(item.statTargets)
+  const [rank, setRank] = useState<Rank>(item.rank)
+  const [fields, setFields] = useState<FieldKey[]>(item.enabledFields)
+  const [primary, setPrimary] = useState<FieldKey | null>(item.primaryMetric)
+  const [direction, setDirection] = useState<Direction>(item.direction)
+  const [target, setTarget] = useState(
+    item.currentTarget !== undefined ? String(item.currentTarget) : '',
+  )
   const [saving, setSaving] = useState(false)
 
   const toggleStat = (s: Stat) =>
@@ -47,7 +84,6 @@ export default function NewItem() {
     setFields((prev) => {
       const on = prev.includes(f)
       const next = on ? prev.filter((x) => x !== f) : [...prev, f]
-      // Métrique principale : défaut = premier champ activé.
       if (!on && primary === null) {
         setPrimary(f)
         setDirection(FIELD_CONFIG[f].defaultDirection)
@@ -73,7 +109,8 @@ export default function NewItem() {
     const parsedTarget = Number.parseFloat(target.replace(',', '.'))
     setSaving(true)
     try {
-      await createItem({
+      await updateItem({
+        itemId,
         name: name.trim(),
         description: description.trim() || undefined,
         statTargets: stats,
@@ -83,7 +120,7 @@ export default function NewItem() {
         direction,
         currentTarget: Number.isFinite(parsedTarget) ? parsedTarget : undefined,
       })
-      router.back()
+      onDone()
     } finally {
       setSaving(false)
     }
@@ -198,7 +235,7 @@ export default function NewItem() {
         </Section>
       ) : null}
 
-      <Button label="Créer l’exercice" onPress={submit} loading={saving} disabled={!valid} />
+      <Button label="Enregistrer" onPress={submit} loading={saving} disabled={!valid} />
     </ScrollView>
   )
 }
@@ -248,6 +285,12 @@ const styles = StyleSheet.create({
   },
   contentWide: {
     paddingHorizontal: Layout.screenPaddingWide,
+  },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.background,
   },
   section: {
     gap: Spacing.sm,

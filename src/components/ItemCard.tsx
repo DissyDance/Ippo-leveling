@@ -19,9 +19,10 @@ export type ItemEntry = { item: Doc<'items'>; record: Doc<'sessions'> | null }
 type Props = {
   entry: ItemEntry
   onPress: () => void
+  onEdit: () => void
 }
 
-function ItemCardBase({ entry, onPress }: Props) {
+function ItemCardBase({ entry, onPress, onEdit }: Props) {
   const { item, record } = entry
   const primaryLabel = FIELD_CONFIG[item.primaryMetric].label
 
@@ -35,7 +36,20 @@ function ItemCardBase({ entry, onPress }: Props) {
         <Txt variant="h3" style={styles.name} numberOfLines={1}>
           {item.name}
         </Txt>
-        <RankBadge rank={item.rank} />
+        <View style={styles.headerRight}>
+          <RankBadge rank={item.rank} />
+          <Pressable
+            onPress={onEdit}
+            accessibilityRole="button"
+            accessibilityLabel={`Modifier ${item.name}`}
+            hitSlop={Spacing.sm}
+            style={({ pressed }) => [styles.editBtn, pressed ? styles.editBtnPressed : null]}
+          >
+            <Txt variant="label" color={Colors.textSecondary}>
+              Modifier
+            </Txt>
+          </Pressable>
+        </View>
       </View>
 
       <View style={styles.stats}>
@@ -50,7 +64,7 @@ function ItemCardBase({ entry, onPress }: Props) {
         </Txt>
         {record ? (
           <>
-            <Txt variant="recordValue" color={Colors.gold}>
+            <Txt variant="recordValue" color={Colors.primary}>
               {formatField(item.primaryMetric, record.primaryValue)}
             </Txt>
             {formatConditions(record.values, item.enabledFields, item.primaryMetric) ? (
@@ -71,7 +85,7 @@ function ItemCardBase({ entry, onPress }: Props) {
           {item.sessionCount} session{item.sessionCount > 1 ? 's' : ''}
         </Txt>
         {item.currentTarget !== undefined ? (
-          <Txt variant="caption" color={Colors.goldSoft}>
+          <Txt variant="caption" color={Colors.primarySoft}>
             Objectif : {formatField(item.primaryMetric, item.currentTarget)}
           </Txt>
         ) : null}
@@ -102,6 +116,21 @@ const styles = StyleSheet.create({
   },
   name: {
     flex: 1,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  editBtn: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xxs,
+    borderRadius: Radius.sm,
+    borderWidth: 1,
+    borderColor: Colors.borderNeutral,
+  },
+  editBtnPressed: {
+    opacity: 0.6,
   },
   stats: {
     flexDirection: 'row',

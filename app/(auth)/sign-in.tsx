@@ -13,7 +13,7 @@ export default function SignIn() {
           Pas encore de compte ?{' '}
         </Txt>
         <Link href="/(auth)/sign-up">
-          <Txt variant="bodySmall" color={Colors.gold}>
+          <Txt variant="bodySmall" color={Colors.primary}>
             Créer un compte
           </Txt>
         </Link>

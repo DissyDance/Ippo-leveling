@@ -12,11 +12,13 @@ import { Txt } from '@/components/Txt'
 import {
   Colors,
   FIELD_CONFIG,
+  Layout,
   Radius,
   Spacing,
   type FieldKey,
   type Stat,
 } from '@/constants/theme'
+import { useResponsive } from '@/hooks/useResponsive'
 import { formatConditions, formatField } from '@/utils/format'
 
 type RecordResult = {
@@ -35,23 +37,18 @@ export default function SessionScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const itemId = id as Id<'items'>
   const router = useRouter()
+  const { isWide } = useResponsive()
   const data = useQuery(api.items.getItem, { itemId })
   const recordSession = useMutation(api.sessions.record)
 
   const [inputs, setInputs] = useState<Partial<Record<FieldKey, string>>>({})
   const [dateStr, setDateStr] = useState(TODAY_ISO)
-  // null = jamais édité → on affiche l'objectif en cours de l'item.
-  const [targetInput, setTargetInput] = useState<string | null>(null)
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
   const [result, setResult] = useState<RecordResult | null>(null)
 
   const item = data?.item
   const record = data?.record
-
-  // Objectif affiché : saisie de l'utilisateur, sinon objectif en cours de l'item.
-  const target =
-    targetInput ?? (item?.currentTarget !== undefined ? String(item.currentTarget) : '')
 
   if (data === undefined) {
     return (
@@ -87,7 +84,6 @@ export default function SessionScreen() {
 
     const parsedDate = Date.parse(dateStr)
     const performedAt = Number.isFinite(parsedDate) ? parsedDate : Date.now()
-    const parsedTarget = Number.parseFloat(target.replace(',', '.'))
 
     setSaving(true)
     try {
@@ -95,7 +91,6 @@ export default function SessionScreen() {
         itemId,
         values,
         performedAt,
-        nextTarget: Number.isFinite(parsedTarget) ? parsedTarget : undefined,
         notes: notes.trim() || undefined,
       })
       setResult({
@@ -111,10 +106,13 @@ export default function SessionScreen() {
 
   if (result) {
     return (
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={[styles.content, isWide ? styles.contentWide : styles.contentNarrow]}
+      >
         {result.isPersonalRecord ? (
           <Animated.View entering={FadeInDown.springify()} style={styles.prBanner}>
-            <Txt variant="h1" color={Colors.onGold}>
+            <Txt variant="h1" color={Colors.onPrimary}>
               RECORD BATTU
             </Txt>
           </Animated.View>
@@ -130,14 +128,14 @@ export default function SessionScreen() {
             {result.stats.map((stat) => (
               <View key={stat} style={styles.xpRow}>
                 <StatPill stat={stat} />
-                <Txt variant="data" color={Colors.gold}>
+                <Txt variant="data" color={Colors.primary}>
                   +{result.xpPerStat}
                 </Txt>
               </View>
             ))}
           </View>
           {result.consistency.xp > 0 ? (
-            <Txt variant="bodySmall" color={Colors.goldSoft}>
+            <Txt variant="bodySmall" color={Colors.primarySoft}>
               Bonus de régularité : +{result.consistency.xp} Volonté
             </Txt>
           ) : null}
@@ -151,7 +149,7 @@ export default function SessionScreen() {
   return (
     <ScrollView
       style={styles.scroll}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, isWide ? styles.contentWide : styles.contentNarrow]}
       keyboardShouldPersistTaps="handled"
     >
       <Txt variant="h2">{item.name}</Txt>
@@ -162,7 +160,7 @@ export default function SessionScreen() {
           RECORD ACTUEL · {FIELD_CONFIG[item.primaryMetric].label}
         </Txt>
         {record ? (
-          <Txt variant="h3" color={Colors.gold}>
+          <Txt variant="h3" color={Colors.primary}>
             {formatField(item.primaryMetric, record.primaryValue)}
             {formatConditions(record.values, item.enabledFields, item.primaryMetric)
               ? `  ·  ${formatConditions(record.values, item.enabledFields, item.primaryMetric)}`
@@ -188,12 +186,6 @@ export default function SessionScreen() {
       ))}
 
       <TextField
-        label={`Objectif prochaine fois (${FIELD_CONFIG[item.primaryMetric].unit})`}
-        value={target}
-        onChangeText={setTargetInput}
-        keyboardType="numeric"
-      />
-      <TextField
         label="Notes (optionnel)"
         value={notes}
         onChangeText={setNotes}
@@ -213,9 +205,14 @@ const styles = StyleSheet.create({
   content: {
     padding: Spacing.lg,
     gap: Spacing.lg,
-    maxWidth: 560,
     width: '100%',
     alignSelf: 'center',
+  },
+  contentNarrow: {
+    maxWidth: Layout.maxContentWidth,
+  },
+  contentWide: {
+    paddingHorizontal: Layout.screenPaddingWide,
   },
   center: {
     flex: 1,
@@ -232,7 +229,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
   },
   prBanner: {
-    backgroundColor: Colors.gold,
+    backgroundColor: Colors.primary,
     padding: Spacing.xl,
     borderRadius: Radius.lg,
     alignItems: 'center',

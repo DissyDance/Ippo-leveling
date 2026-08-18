@@ -9,7 +9,7 @@ export default function TabsLayout() {
         headerTitleStyle: { color: Colors.textPrimary, fontFamily: Fonts.display, letterSpacing: 1 },
         headerShadowVisible: false,
         sceneStyle: { backgroundColor: Colors.background },
-        tabBarActiveTintColor: Colors.gold,
+        tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: Colors.textMuted,
         tabBarStyle: {
           backgroundColor: Colors.surface,

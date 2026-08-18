@@ -5,11 +5,10 @@
  * ou durée d'animation ne doit être écrite en dur ailleurs dans le code.
  *
  * Direction artistique : "ceinture de champion".
- * Or/ambre primaire, rouge sang secondaire, dark mode exclusif.
+ * Purple primaire, rouge sang secondaire, dark mode exclusif.
  *
- * Note : il n'existe pas de token "warning". L'ambre primaire occupe déjà cette
- * teinte, donc les états d'alerte réutilisent Colors.crimson. Un seul rouge,
- * deux usages, zéro ambiguïté.
+ * Note : il n'existe pas de token "warning". Les états d'alerte réutilisent
+ * Colors.crimson. Un seul rouge, deux usages, zéro ambiguïté.
  */
 
 // ---------------------------------------------------------------------------
@@ -24,9 +23,9 @@ export const Colors = {
   surfaceOverlay: 'rgba(5, 3, 8, 0.82)',
 
   // Accents
-  gold: '#F5A524',
-  goldSoft: '#FFD07A',
-  goldDeep: '#B87A0E',
+  primary: '#A855F7',
+  primarySoft: '#D0A6FF',
+  primaryDeep: '#7C3AED',
   crimson: '#E5384F',
   crimsonSoft: '#FF7A88',
   crimsonDeep: '#A31F32',
@@ -36,12 +35,12 @@ export const Colors = {
   textSecondary: '#A8A29B',
   textMuted: '#6B665F',
   textDisabled: '#443F3A',
-  onGold: '#412402',
+  onPrimary: '#FFFFFF',
   onCrimson: '#FFFFFF',
 
   // Bordures
-  border: 'rgba(245, 165, 36, 0.14)',
-  borderStrong: 'rgba(245, 165, 36, 0.30)',
+  border: 'rgba(168, 85, 247, 0.16)',
+  borderStrong: 'rgba(168, 85, 247, 0.32)',
   borderNeutral: 'rgba(245, 243, 240, 0.08)',
 
   // Sémantique
@@ -155,10 +154,13 @@ export const Radius = {
 
 export const Layout = {
   screenPadding: Spacing.lg,
+  screenPaddingWide: Spacing.xxl, // marge horizontale sur grand écran
   cardPadding: Spacing.lg,
   tabBarHeight: 64,
   minTouchTarget: 48,
-  maxContentWidth: 560, // borne la largeur en web
+  maxContentWidth: 560, // borne la largeur d'un écran étroit (téléphone)
+  // Au-delà de cette largeur : mode "ordinateur", le contenu prend toute la page.
+  wideBreakpoint: 768,
 } as const
 
 // ---------------------------------------------------------------------------

@@ -75,6 +75,13 @@ export default defineSchema({
     .index('by_item_date', ['itemId', 'performedAt'])
     .index('by_user_date', ['userId', 'performedAt']),
 
+  // Feedback joueurs. Lecture/suppression réservées à la CLI (internal).
+  feedback: defineTable({
+    userId: v.id('users'),
+    message: v.string(),
+    createdAt: v.number(),
+  }).index('by_user', ['userId']),
+
   // Trace de tout crédit d'XP, par caractéristique. Append-only.
   xpLogs: defineTable({
     userId: v.id('users'),

@@ -64,7 +64,7 @@ function RadarChartBase({ levels, size = 260 }: Props) {
         })}
 
         {/* Aire de données */}
-        <Polygon points={polygon} fill={Colors.gold} fillOpacity={0.22} stroke={Colors.gold} strokeWidth={2} />
+        <Polygon points={polygon} fill={Colors.primary} fillOpacity={0.22} stroke={Colors.primary} strokeWidth={2} />
         {dataPoints.map(({ stat, x, y }) => (
           <Circle key={stat} cx={x} cy={y} r={3} fill={STAT_CONFIG[stat].color} />
         ))}

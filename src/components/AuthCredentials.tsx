@@ -50,7 +50,7 @@ export function AuthCredentials({ flow, title, submitLabel }: Props) {
   return (
     <Screen centered>
       <View style={styles.form}>
-        <Txt variant="hero" color={Colors.gold}>
+        <Txt variant="hero" color={Colors.primary}>
           IPPO
         </Txt>
         <Txt variant="h2">{title}</Txt>

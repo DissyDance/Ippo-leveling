@@ -29,7 +29,7 @@ export default function ProfileScreen() {
           <Txt variant="label" color={Colors.textSecondary}>
             NIVEAU GLOBAL
           </Txt>
-          <Txt variant="hero" color={Colors.gold}>
+          <Txt variant="hero" color={Colors.primary}>
             {globalLevel}
           </Txt>
           <Txt variant="bodySmall" color={Colors.textMuted}>
@@ -63,7 +63,7 @@ export default function ProfileScreen() {
                 <Txt variant="bodySmall" style={styles.logLabel} numberOfLines={1}>
                   {log.label}
                 </Txt>
-                <Txt variant="data" color={Colors.gold}>
+                <Txt variant="data" color={Colors.primary}>
                   +{log.amount}
                 </Txt>
               </View>
