@@ -1,11 +1,12 @@
 import { useMutation, useQuery } from 'convex/react'
-import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useState } from 'react'
-import { ScrollView, StyleSheet, View } from 'react-native'
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
+import { useEffect, useState } from 'react'
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import Animated, { FadeInDown } from 'react-native-reanimated'
 import { api } from '@convex/_generated/api'
 import type { Id } from '@convex/_generated/dataModel'
 import { Button } from '@/components/Button'
+import { Icon } from '@/components/Icon'
 import { StatPill } from '@/components/StatPill'
 import { TextField } from '@/components/TextField'
 import { Txt } from '@/components/Txt'
@@ -46,6 +47,23 @@ export default function SessionScreen() {
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
   const [result, setResult] = useState<RecordResult | null>(null)
+
+  // Retour à l'écran précédent (croix de l'en-tête ou touche Échap sur web),
+  // utile en cas de mauvais item sélectionné par erreur.
+  const close = () => {
+    if (router.canGoBack()) router.back()
+    else router.replace('/')
+  }
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const item = data?.item
   const record = data?.record
@@ -104,12 +122,19 @@ export default function SessionScreen() {
     }
   }
 
+  const headerClose = () => (
+    <Pressable onPress={close} hitSlop={12} accessibilityRole="button" accessibilityLabel="Fermer" style={styles.closeBtn}>
+      <Icon name="close" size={24} color={Colors.primary} />
+    </Pressable>
+  )
+
   if (result) {
     return (
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={[styles.content, isWide ? styles.contentWide : styles.contentNarrow]}
       >
+        <Stack.Screen options={{ headerLeft: headerClose }} />
         {result.isPersonalRecord ? (
           <Animated.View entering={FadeInDown.springify()} style={styles.prBanner}>
             <Txt variant="h1" color={Colors.onPrimary}>
@@ -152,6 +177,7 @@ export default function SessionScreen() {
       contentContainerStyle={[styles.content, isWide ? styles.contentWide : styles.contentNarrow]}
       keyboardShouldPersistTaps="handled"
     >
+      <Stack.Screen options={{ headerLeft: headerClose }} />
       <Txt variant="h2">{item.name}</Txt>
 
       {/* Rappel du record au-dessus de la métrique principale. */}
@@ -219,6 +245,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: Colors.background,
+  },
+  closeBtn: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
   },
   recordReminder: {
     gap: Spacing.xxs,
