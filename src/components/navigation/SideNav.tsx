@@ -10,6 +10,10 @@ import { TAB_ENTRIES } from './tabs.config'
 
 export const SIDENAV_WIDTH = 240
 
+// Destinations principales en haut ; Profil et Réglages épinglés en bas.
+const PRIMARY = TAB_ENTRIES.filter((e) => e.name === 'index')
+const SECONDARY = TAB_ENTRIES.filter((e) => e.name === 'profile' || e.name === 'settings')
+
 function isActive(pathname: string, path: string): boolean {
   if (path === '/') return pathname === '/' || pathname === '/index'
   return pathname === path || pathname.startsWith(path + '/')
@@ -27,6 +31,38 @@ export function SideNav() {
   const avatarUrl = header?.image ?? null
   const initial = (header?.name?.trim()?.[0] ?? '?').toUpperCase()
 
+  const renderEntry = (entry: (typeof TAB_ENTRIES)[number]) => {
+    const active = isActive(pathname, entry.path)
+    const isProfile = entry.name === 'profile'
+    return (
+      <NavItem
+        key={entry.path}
+        label={entry.label}
+        active={active}
+        onPress={() => router.navigate(entry.path as never)}
+      >
+        {isProfile ? (
+          avatarUrl ? (
+            <Image source={{ uri: avatarUrl }} style={[styles.avatar, active && styles.avatarActive]} />
+          ) : (
+            <View style={[styles.avatar, styles.avatarFallback, active && styles.avatarActive]}>
+              <Txt variant="caption" color={Colors.onPrimary}>
+                {initial}
+              </Txt>
+            </View>
+          )
+        ) : (
+          <Icon
+            name={entry.icon}
+            size={20}
+            color={active ? Colors.primary : Colors.textSecondary}
+            stroke={1.8}
+          />
+        )}
+      </NavItem>
+    )
+  }
+
   return (
     <View style={styles.root}>
       <View style={styles.brand}>
@@ -36,45 +72,14 @@ export function SideNav() {
         </Txt>
       </View>
 
-      <View style={styles.group}>
-        {TAB_ENTRIES.map((entry) => {
-          const active = isActive(pathname, entry.path)
-          const isProfile = entry.name === 'profile'
-          return (
-            <NavItem
-              key={entry.path}
-              label={entry.label}
-              active={active}
-              onPress={() => router.navigate(entry.path as never)}
-            >
-              {isProfile && (avatarUrl || initial) ? (
-                avatarUrl ? (
-                  <Image
-                    source={{ uri: avatarUrl }}
-                    style={[styles.avatar, active && styles.avatarActive]}
-                  />
-                ) : (
-                  <View style={[styles.avatar, styles.avatarFallback, active && styles.avatarActive]}>
-                    <Txt variant="caption" color={Colors.onPrimary}>
-                      {initial}
-                    </Txt>
-                  </View>
-                )
-              ) : (
-                <Icon
-                  name={entry.icon}
-                  size={20}
-                  color={active ? Colors.primary : Colors.textSecondary}
-                  stroke={1.8}
-                />
-              )}
-            </NavItem>
-          )
-        })}
-      </View>
+      <View style={styles.group}>{PRIMARY.map(renderEntry)}</View>
 
       <View style={styles.spacer} />
-      <Txt variant="caption" color={Colors.textMuted}>
+
+      {/* Profil et Réglages épinglés en bas du rail (à la Notion / Leveling Master). */}
+      <View style={styles.group}>{SECONDARY.map(renderEntry)}</View>
+
+      <Txt variant="caption" color={Colors.textMuted} style={styles.footer}>
         SYSTEM · DESKTOP
       </Txt>
     </View>
@@ -173,5 +178,9 @@ const styles = StyleSheet.create({
   },
   spacer: {
     flex: 1,
+  },
+  footer: {
+    marginTop: Spacing.lg,
+    paddingHorizontal: Spacing.md,
   },
 })
