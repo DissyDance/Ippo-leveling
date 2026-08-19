@@ -2,6 +2,7 @@ import { useQuery } from 'convex/react'
 import { useMemo } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 import { api } from '@convex/_generated/api'
+import { ProfileHeader } from '@/components/ProfileHeader'
 import { RadarChart } from '@/components/RadarChart'
 import { Screen } from '@/components/Screen'
 import { StatPill } from '@/components/StatPill'
@@ -11,6 +12,7 @@ import { globalLevelFromStats, levelFromXp } from '@/utils/xp.utils'
 
 export default function ProfileScreen() {
   const player = useQuery(api.players.getCurrentPlayer)
+  const header = useQuery(api.players.getProfileHeader)
   const logs = useQuery(api.players.listRecentXpLogs, { limit: 30 })
   const items = useQuery(api.items.listActiveItems)
 
@@ -25,6 +27,8 @@ export default function ProfileScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {header ? <ProfileHeader name={header.name} image={header.image} /> : null}
+
         <View style={styles.levelHeader}>
           <Txt variant="label" color={Colors.textSecondary}>
             NIVEAU GLOBAL

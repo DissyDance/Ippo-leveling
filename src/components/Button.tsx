@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native'
 import { Colors, Layout, Motion, Radius, Spacing } from '@/constants/theme'
 import { Txt } from './Txt'
@@ -10,10 +11,12 @@ type Props = {
   variant?: Variant
   disabled?: boolean
   loading?: boolean
+  /** Icône optionnelle rendue avant le label (ex. logo Google). */
+  icon?: ReactNode
 }
 
 /** Bouton. Animation d'appui GPU-only (transform: scale), jamais de width animé. */
-export function Button({ label, onPress, variant = 'primary', disabled = false, loading = false }: Props) {
+export function Button({ label, onPress, variant = 'primary', disabled = false, loading = false, icon }: Props) {
   const isDisabled = disabled || loading
   return (
     <Pressable
@@ -31,9 +34,12 @@ export function Button({ label, onPress, variant = 'primary', disabled = false, 
         {loading ? (
           <ActivityIndicator color={variant === 'primary' ? Colors.onPrimary : Colors.textPrimary} />
         ) : (
-          <Txt variant="h3" color={LABEL_COLOR[variant]}>
-            {label}
-          </Txt>
+          <>
+            {icon}
+            <Txt variant="h3" color={LABEL_COLOR[variant]}>
+              {label}
+            </Txt>
+          </>
         )}
       </View>
     </Pressable>

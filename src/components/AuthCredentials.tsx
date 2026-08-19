@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Colors, Spacing } from '@/constants/theme'
 import { Button } from './Button'
+import { GoogleLogo } from './GoogleLogo'
 import { Screen } from './Screen'
 import { TextField } from './TextField'
 import { Txt } from './Txt'
@@ -79,7 +80,12 @@ export function AuthCredentials({ flow, title, submitLabel }: Props) {
         ) : null}
 
         <Button label={submitLabel} onPress={submit} loading={loading} />
-        <Button label="Continuer avec Google" onPress={google} variant="secondary" />
+        <Button
+          label="Continuer avec Google"
+          onPress={google}
+          variant="secondary"
+          icon={<GoogleLogo size={18} />}
+        />
       </View>
     </Screen>
   )

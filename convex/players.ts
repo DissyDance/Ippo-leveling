@@ -22,6 +22,26 @@ export const getCurrentPlayer = query({
   },
 })
 
+/**
+ * En-tête du profil : nom affiché et avatar. Le nom vient du `displayName`
+ * du joueur (choisi à l'onboarding), avec repli sur le nom du compte Google ;
+ * l'avatar vient de la photo du compte (Google) si disponible.
+ */
+export const getProfileHeader = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx)
+    if (!userId) return null
+    const user = await ctx.db.get(userId)
+    const player = await ctx.db
+      .query('players')
+      .withIndex('by_user', (q) => q.eq('userId', userId))
+      .unique()
+    const name = player?.displayName || user?.name || user?.email || 'Joueur'
+    return { name, image: user?.image ?? null }
+  },
+})
+
 /** Historique récent des gains d'XP, pour le profil (SPEC §8.5). */
 export const listRecentXpLogs = query({
   args: { limit: v.optional(v.number()) },
