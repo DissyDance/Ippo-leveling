@@ -67,8 +67,8 @@ export function SideNav() {
     <View style={styles.root}>
       <View style={styles.brand}>
         <View style={styles.brandDiamond} />
-        <Txt variant="h2" color={Colors.primary}>
-          IPPO
+        <Txt variant="h2" color={Colors.primary} numberOfLines={1}>
+          Ippo Leveling
         </Txt>
       </View>
 
