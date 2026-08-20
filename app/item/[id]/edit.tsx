@@ -65,6 +65,9 @@ type EditFormProps = {
 
 function EditForm({ itemId, item, updateItem, onDone }: EditFormProps) {
   const { isWide } = useResponsive()
+  const archiveItem = useMutation(api.items.archive)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [name, setName] = useState(item.name)
   const [description, setDescription] = useState(item.description ?? '')
   const [stats, setStats] = useState<Stat[]>(item.statTargets)
@@ -103,6 +106,16 @@ function EditForm({ itemId, item, updateItem, onDone }: EditFormProps) {
     () => (stats.length >= 1 ? xpPerStat(rank, stats.length, false) : 0),
     [rank, stats.length],
   )
+
+  const remove = async () => {
+    setDeleting(true)
+    try {
+      await archiveItem({ itemId })
+      onDone()
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   const submit = async () => {
     if (!valid || primary === null) return
@@ -236,6 +249,54 @@ function EditForm({ itemId, item, updateItem, onDone }: EditFormProps) {
       ) : null}
 
       <Button label="Enregistrer" onPress={submit} loading={saving} disabled={!valid} />
+
+      {/* Zone dangereuse : suppression (archivage) avec confirmation joueur.
+          Confirmation en ligne — Alert.alert n'a pas de multi-bouton fiable sur web. */}
+      <View style={styles.dangerZone}>
+        {confirmingDelete ? (
+          <View style={styles.confirmBox}>
+            <Txt variant="body" color={Colors.textPrimary}>
+              Supprimer « {item.name} » ? Il disparaîtra de tes records. Ton XP et ton
+              historique de sessions restent conservés.
+            </Txt>
+            <View style={styles.confirmRow}>
+              <Pressable
+                onPress={() => setConfirmingDelete(false)}
+                disabled={deleting}
+                style={[styles.dangerBtn, styles.cancelBtn]}
+                accessibilityRole="button"
+                accessibilityLabel="Annuler la suppression"
+              >
+                <Txt variant="h3" color={Colors.textPrimary}>
+                  Annuler
+                </Txt>
+              </Pressable>
+              <Pressable
+                onPress={remove}
+                disabled={deleting}
+                style={[styles.dangerBtn, styles.confirmDeleteBtn, deleting ? styles.btnDisabled : null]}
+                accessibilityRole="button"
+                accessibilityLabel="Confirmer la suppression"
+              >
+                <Txt variant="h3" color={Colors.onCrimson}>
+                  {deleting ? 'Suppression…' : 'Supprimer'}
+                </Txt>
+              </Pressable>
+            </View>
+          </View>
+        ) : (
+          <Pressable
+            onPress={() => setConfirmingDelete(true)}
+            style={[styles.dangerBtn, styles.deleteBtn]}
+            accessibilityRole="button"
+            accessibilityLabel="Supprimer l'exercice"
+          >
+            <Txt variant="h3" color={Colors.danger}>
+              Supprimer l&apos;exercice
+            </Txt>
+          </Pressable>
+        )}
+      </View>
     </ScrollView>
   )
 }
@@ -317,5 +378,47 @@ const styles = StyleSheet.create({
   fieldChipOn: {
     borderColor: Colors.primary,
     backgroundColor: Colors.surfaceElevated,
+  },
+  dangerZone: {
+    marginTop: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    paddingTop: Spacing.lg,
+  },
+  confirmBox: {
+    gap: Spacing.md,
+    padding: Spacing.md,
+    borderRadius: Radius.md,
+    backgroundColor: Colors.dangerBg,
+    borderWidth: 1,
+    borderColor: Colors.danger,
+  },
+  confirmRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  dangerBtn: {
+    minHeight: Layout.minTouchTarget,
+    borderRadius: Radius.md,
+    paddingHorizontal: Spacing.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  deleteBtn: {
+    borderWidth: 1,
+    borderColor: Colors.danger,
+  },
+  cancelBtn: {
+    flex: 1,
+    backgroundColor: Colors.surfaceElevated,
+    borderWidth: 1,
+    borderColor: Colors.borderStrong,
+  },
+  confirmDeleteBtn: {
+    flex: 1,
+    backgroundColor: Colors.danger,
+  },
+  btnDisabled: {
+    opacity: 0.5,
   },
 })

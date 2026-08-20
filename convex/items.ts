@@ -134,3 +134,19 @@ export const update = mutation({
     await ctx.db.patch(args.itemId, patch)
   },
 })
+
+/**
+ * Suppression côté joueur = archivage (soft delete). L'item disparaît des
+ * records (listActiveItems ne renvoie que 'active') mais les ledgers
+ * append-only sessions/xpLogs et l'XP déjà créditée restent intacts.
+ */
+export const archive = mutation({
+  args: { itemId: v.id('items') },
+  handler: async (ctx, args): Promise<void> => {
+    const userId = await getAuthUserId(ctx)
+    if (!userId) throw new Error('Non authentifié')
+    const item = await ctx.db.get(args.itemId)
+    if (!item || item.userId !== userId) throw new Error('Item introuvable')
+    await ctx.db.patch(args.itemId, { status: 'archived' })
+  },
+})
