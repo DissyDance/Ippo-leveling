@@ -75,6 +75,17 @@ export default defineSchema({
     .index('by_item_date', ['itemId', 'performedAt'])
     .index('by_user_date', ['userId', 'performedAt']),
 
+  // Module Running — journal de courses. CRUD complet (contrairement au ledger
+  // `sessions` des exercices) : distance et temps sont des mesures brutes, la
+  // vitesse moyenne et les records sont dérivés côté lecture, jamais stockés.
+  runs: defineTable({
+    userId: v.id('users'),
+    performedAt: v.number(), // jour de la course, pré-rempli au jour courant
+    distanceMeters: v.number(), // > 0
+    durationSeconds: v.number(), // > 0
+    createdAt: v.number(),
+  }).index('by_user_date', ['userId', 'performedAt']),
+
   // Feedback joueurs. Lecture/suppression réservées à la CLI (internal).
   feedback: defineTable({
     userId: v.id('users'),

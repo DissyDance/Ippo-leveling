@@ -11,6 +11,7 @@ export type TabEntry = {
 /** Onglets principaux, dans l'ordre d'affichage (barre mobile + rail desktop). */
 export const TAB_ENTRIES: TabEntry[] = [
   { name: 'index', path: '/', label: 'Records', icon: 'trophy' },
+  { name: 'running', path: '/running', label: 'Running', icon: 'run' },
   { name: 'profile', path: '/profile', label: 'Profil', icon: 'user' },
   { name: 'settings', path: '/settings', label: 'Réglages', icon: 'gear' },
 ]

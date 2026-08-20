@@ -15,6 +15,7 @@ import type * as items from "../items.js";
 import type * as model_consistency from "../model/consistency.js";
 import type * as model_player from "../model/player.js";
 import type * as players from "../players.js";
+import type * as running from "../running.js";
 import type * as sessions from "../sessions.js";
 import type * as validators from "../validators.js";
 
@@ -32,6 +33,7 @@ declare const fullApi: ApiFromModules<{
   "model/consistency": typeof model_consistency;
   "model/player": typeof model_player;
   players: typeof players;
+  running: typeof running;
   sessions: typeof sessions;
   validators: typeof validators;
 }>;

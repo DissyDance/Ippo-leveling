@@ -20,6 +20,7 @@ export default function TabsLayout() {
       tabBar={(props) => (isWide ? null : <BottomTabBar {...props} />)}
     >
       <Tabs.Screen name="index" options={{ title: 'Records' }} />
+      <Tabs.Screen name="running" options={{ title: 'Running' }} />
       <Tabs.Screen name="profile" options={{ title: 'Profil' }} />
       <Tabs.Screen name="settings" options={{ title: 'Réglages' }} />
     </Tabs>
