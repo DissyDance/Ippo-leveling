@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from 'convex/react'
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import Animated, { FadeInDown } from 'react-native-reanimated'
@@ -122,9 +122,11 @@ export default function SessionScreen() {
     }
   }
 
-  const headerClose = () => (
+  // X visible dans le contenu (fiable sur web ET natif, contrairement à un
+  // headerLeft de la Stack qui ne s'affiche pas toujours sur le web).
+  const closeX = (
     <Pressable onPress={close} hitSlop={12} accessibilityRole="button" accessibilityLabel="Fermer" style={styles.closeBtn}>
-      <Icon name="close" size={24} color={Colors.primary} />
+      <Icon name="close" size={24} color={Colors.textSecondary} />
     </Pressable>
   )
 
@@ -134,7 +136,10 @@ export default function SessionScreen() {
         style={styles.scroll}
         contentContainerStyle={[styles.content, isWide ? styles.contentWide : styles.contentNarrow]}
       >
-        <Stack.Screen options={{ headerLeft: headerClose }} />
+        <View style={styles.topBar}>
+          <View style={styles.topBarSpacer} />
+          {closeX}
+        </View>
         {result.isPersonalRecord ? (
           <Animated.View entering={FadeInDown.springify()} style={styles.prBanner}>
             <Txt variant="h1" color={Colors.onPrimary}>
@@ -177,8 +182,12 @@ export default function SessionScreen() {
       contentContainerStyle={[styles.content, isWide ? styles.contentWide : styles.contentNarrow]}
       keyboardShouldPersistTaps="handled"
     >
-      <Stack.Screen options={{ headerLeft: headerClose }} />
-      <Txt variant="h2">{item.name}</Txt>
+      <View style={styles.topBar}>
+        <Txt variant="h2" style={styles.topBarTitle}>
+          {item.name}
+        </Txt>
+        {closeX}
+      </View>
 
       {/* Rappel du record au-dessus de la métrique principale. */}
       <View style={styles.recordReminder}>
@@ -246,9 +255,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: Colors.background,
   },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  topBarTitle: {
+    flex: 1,
+  },
+  topBarSpacer: {
+    flex: 1,
+  },
   closeBtn: {
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs,
+    padding: Spacing.xs,
+    borderRadius: Radius.pill,
   },
   recordReminder: {
     gap: Spacing.xxs,
