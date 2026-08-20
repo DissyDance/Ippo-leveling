@@ -256,8 +256,9 @@ function EditForm({ itemId, item, updateItem, onDone }: EditFormProps) {
         {confirmingDelete ? (
           <View style={styles.confirmBox}>
             <Txt variant="body" color={Colors.textPrimary}>
-              Supprimer « {item.name} » ? Il disparaîtra de tes records. Ton XP et ton
-              historique de sessions restent conservés.
+              Supprimer « {item.name} » ? Il disparaîtra de tes records et son
+              historique de sessions sera effacé. Ton XP déjà gagnée reste
+              conservée.
             </Txt>
             <View style={styles.confirmRow}>
               <Pressable

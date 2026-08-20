@@ -136,9 +136,14 @@ export const update = mutation({
 })
 
 /**
- * Suppression côté joueur = archivage (soft delete). L'item disparaît des
- * records (listActiveItems ne renvoie que 'active') mais les ledgers
- * append-only sessions/xpLogs et l'XP déjà créditée restent intacts.
+ * Suppression côté joueur. L'item est archivé (il disparaît des records —
+ * listActiveItems ne renvoie que 'active') ET son historique de sessions est
+ * effacé.
+ *
+ * L'XP est CONSERVÉE : elle vit dans players.*_xp (agrégats mutables) et dans
+ * le ledger xpLogs, tous deux laissés intacts. Seule la table `sessions` est
+ * purgée pour cet item — exception assumée à son caractère append-only,
+ * déclenchée explicitement par le joueur.
  */
 export const archive = mutation({
   args: { itemId: v.id('items') },
@@ -147,6 +152,24 @@ export const archive = mutation({
     if (!userId) throw new Error('Non authentifié')
     const item = await ctx.db.get(args.itemId)
     if (!item || item.userId !== userId) throw new Error('Item introuvable')
-    await ctx.db.patch(args.itemId, { status: 'archived' })
+
+    // Efface l'historique des sessions de cet item.
+    const sessions = await ctx.db
+      .query('sessions')
+      .withIndex('by_item_date', (q) => q.eq('itemId', args.itemId))
+      .collect()
+    for (const session of sessions) {
+      await ctx.db.delete(session._id)
+    }
+
+    // Archive et remet à zéro les champs dérivés des sessions supprimées.
+    // Le pointeur de record devient caduc : on le retire pour éviter un id
+    // pendouillant (xpLogs.sessionId n'est jamais déréférencé, on le laisse).
+    await ctx.db.patch(args.itemId, {
+      status: 'archived',
+      personalRecordSessionId: undefined,
+      lastSessionAt: undefined,
+      sessionCount: 0,
+    })
   },
 })
