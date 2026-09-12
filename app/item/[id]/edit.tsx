@@ -9,6 +9,8 @@ import { StatPill } from '@/components/StatPill'
 import { TextField } from '@/components/TextField'
 import { Txt } from '@/components/Txt'
 import {
+  CATEGORIES,
+  CATEGORY_CONFIG,
   Colors,
   FIELD_CONFIG,
   FIELD_KEYS,
@@ -18,6 +20,7 @@ import {
   Radius,
   Spacing,
   STATS,
+  type Category,
   type Direction,
   type FieldKey,
   type Rank,
@@ -70,6 +73,7 @@ function EditForm({ itemId, item, updateItem, onDone }: EditFormProps) {
   const [deleting, setDeleting] = useState(false)
   const [name, setName] = useState(item.name)
   const [description, setDescription] = useState(item.description ?? '')
+  const [category, setCategory] = useState<Category | null>(item.category ?? null)
   const [stats, setStats] = useState<Stat[]>(item.statTargets)
   const [rank, setRank] = useState<Rank>(item.rank)
   const [fields, setFields] = useState<FieldKey[]>(item.enabledFields)
@@ -126,6 +130,7 @@ function EditForm({ itemId, item, updateItem, onDone }: EditFormProps) {
         itemId,
         name: name.trim(),
         description: description.trim() || undefined,
+        category,
         statTargets: stats,
         rank,
         enabledFields: fields,
@@ -153,6 +158,22 @@ function EditForm({ itemId, item, updateItem, onDone }: EditFormProps) {
         placeholder="Variante, consignes…"
         autoCapitalize="sentences"
       />
+
+      <Section title="Catégorie (optionnel)">
+        <View style={styles.wrapRow}>
+          {CATEGORIES.map((c) => (
+            <Pressable
+              key={c}
+              onPress={() => setCategory((cur) => (cur === c ? null : c))}
+              style={[styles.fieldChip, category === c ? styles.fieldChipOn : null]}
+            >
+              <Txt variant="body" color={category === c ? Colors.primary : Colors.textMuted}>
+                {CATEGORY_CONFIG[c].label}
+              </Txt>
+            </Pressable>
+          ))}
+        </View>
+      </Section>
 
       <Section title="Caractéristiques ciblées">
         <View style={styles.wrapRow}>

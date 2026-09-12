@@ -9,11 +9,14 @@ import { Screen } from '@/components/Screen'
 import { StatPill } from '@/components/StatPill'
 import { Txt } from '@/components/Txt'
 import {
+  CATEGORIES,
+  CATEGORY_CONFIG,
   Colors,
   RANKS,
   Radius,
   Spacing,
   STATS,
+  type Category,
   type Rank,
   type Stat,
 } from '@/constants/theme'
@@ -31,6 +34,7 @@ export default function RecordsScreen() {
   const entries = useQuery(api.items.listActiveItems)
   const [statFilter, setStatFilter] = useState<Stat | null>(null)
   const [rankFilter, setRankFilter] = useState<Rank | null>(null)
+  const [categoryFilter, setCategoryFilter] = useState<Category | null>(null)
   const [sort, setSort] = useState<SortMode>('recent')
 
   const visible = useMemo(() => {
@@ -38,6 +42,7 @@ export default function RecordsScreen() {
     const filtered = entries.filter(({ item }) => {
       if (statFilter && !item.statTargets.includes(statFilter)) return false
       if (rankFilter && item.rank !== rankFilter) return false
+      if (categoryFilter && item.category !== categoryFilter) return false
       return true
     })
     const sorted = [...filtered]
@@ -47,7 +52,7 @@ export default function RecordsScreen() {
       return (b.item.lastSessionAt ?? 0) - (a.item.lastSessionAt ?? 0)
     })
     return sorted
-  }, [entries, statFilter, rankFilter, sort])
+  }, [entries, statFilter, rankFilter, categoryFilter, sort])
 
   const cycleSort = () => {
     setSort((s) => (s === 'recent' ? 'rank' : s === 'rank' ? 'sessions' : 'recent'))
@@ -114,6 +119,23 @@ export default function RecordsScreen() {
                   Tri : {SORT_LABEL[sort]}
                 </Txt>
               </Pressable>
+            </View>
+
+            <View style={styles.filterRow}>
+              {CATEGORIES.map((cat) => (
+                <Pressable
+                  key={cat}
+                  onPress={() => setCategoryFilter((c) => (c === cat ? null : cat))}
+                  style={[styles.rankChip, categoryFilter === cat ? styles.rankChipOn : null]}
+                >
+                  <Txt
+                    variant="label"
+                    color={categoryFilter === cat ? Colors.primary : Colors.textMuted}
+                  >
+                    {CATEGORY_CONFIG[cat].label}
+                  </Txt>
+                </Pressable>
+              ))}
             </View>
           </View>
         }

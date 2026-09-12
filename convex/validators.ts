@@ -11,7 +11,7 @@
  */
 import { v } from 'convex/values'
 import type { Infer } from 'convex/values'
-import type { Direction, FieldKey, Rank, Stat } from '../src/constants/theme'
+import type { Category, Direction, FieldKey, Rank, Stat } from '../src/constants/theme'
 
 // --- Caractéristiques (6) -------------------------------------------------
 export const STAT = v.union(
@@ -50,6 +50,15 @@ export const DIRECTION = v.union(
   v.literal('lower_better'),
 )
 
+// --- Catégories (5), rangement optionnel des items ------------------------
+export const CATEGORY = v.union(
+  v.literal('leg'),
+  v.literal('arms'),
+  v.literal('stamina'),
+  v.literal('circuit'),
+  v.literal('basics'),
+)
+
 // --- Valeurs mesurées d'une session --------------------------------------
 // Seuls les champs activés sur l'item sont renseignés à l'enregistrement.
 export const SESSION_VALUES = v.object({
@@ -66,12 +75,15 @@ type _StatOk = Infer<typeof STAT> extends Stat ? (Stat extends Infer<typeof STAT
 type _RankOk = Infer<typeof RANK> extends Rank ? (Rank extends Infer<typeof RANK> ? true : never) : never
 type _FieldOk = Infer<typeof FIELD_KEY> extends FieldKey ? (FieldKey extends Infer<typeof FIELD_KEY> ? true : never) : never
 type _DirOk = Infer<typeof DIRECTION> extends Direction ? (Direction extends Infer<typeof DIRECTION> ? true : never) : never
+type _CatOk = Infer<typeof CATEGORY> extends Category ? (Category extends Infer<typeof CATEGORY> ? true : never) : never
 
 const _assertStat: _StatOk = true
 const _assertRank: _RankOk = true
 const _assertField: _FieldOk = true
 const _assertDir: _DirOk = true
+const _assertCat: _CatOk = true
 void _assertStat
 void _assertRank
 void _assertField
 void _assertDir
+void _assertCat

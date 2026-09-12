@@ -2,6 +2,7 @@ import { memo } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import type { Doc } from '@convex/_generated/dataModel'
 import {
+  CATEGORY_CONFIG,
   Colors,
   FIELD_CONFIG,
   Layout,
@@ -53,6 +54,13 @@ function ItemCardBase({ entry, onPress, onEdit }: Props) {
       </View>
 
       <View style={styles.stats}>
+        {item.category ? (
+          <View style={styles.categoryChip}>
+            <Txt variant="label" color={Colors.textSecondary}>
+              {CATEGORY_CONFIG[item.category].label}
+            </Txt>
+          </View>
+        ) : null}
         {item.statTargets.map((stat) => (
           <StatPill key={stat} stat={stat} />
         ))}
@@ -136,6 +144,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Spacing.xs,
+    alignItems: 'center',
+  },
+  categoryChip: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xxs,
+    borderRadius: Radius.sm,
+    borderWidth: 1,
+    borderColor: Colors.borderNeutral,
+    backgroundColor: Colors.surfaceElevated,
   },
   recordBlock: {
     gap: Spacing.xxs,

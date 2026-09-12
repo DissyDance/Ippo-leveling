@@ -92,6 +92,21 @@ export const STAT_CONFIG = {
 } as const satisfies Record<Stat, { label: string; color: string; xpKey: string; icon: string }>
 
 // ---------------------------------------------------------------------------
+// Catégories — regroupement optionnel des items dans le module Records
+// ---------------------------------------------------------------------------
+
+export const CATEGORIES = ['leg', 'arms', 'stamina', 'circuit', 'basics'] as const
+export type Category = (typeof CATEGORIES)[number]
+
+export const CATEGORY_CONFIG = {
+  leg:     { label: 'Leg Workout' },
+  arms:    { label: 'Arms Workout' },
+  stamina: { label: 'Stamina' },
+  circuit: { label: 'Circuit' },
+  basics:  { label: 'Basics' },
+} as const satisfies Record<Category, { label: string }>
+
+// ---------------------------------------------------------------------------
 // Champs mesurables
 // ---------------------------------------------------------------------------
 

@@ -8,7 +8,7 @@
 import { defineSchema, defineTable } from 'convex/server'
 import { v } from 'convex/values'
 import { authTables } from '@convex-dev/auth/server'
-import { DIRECTION, FIELD_KEY, RANK, SESSION_VALUES, STAT } from './validators'
+import { CATEGORY, DIRECTION, FIELD_KEY, RANK, SESSION_VALUES, STAT } from './validators'
 
 export default defineSchema({
   // Tables de Convex Auth (users, authAccounts, authSessions, ...).
@@ -36,6 +36,7 @@ export default defineSchema({
 
     name: v.string(),
     description: v.optional(v.string()),
+    category: v.optional(CATEGORY), // rangement optionnel
     statTargets: v.array(STAT), // 1 à 6, non vide
     rank: RANK, // E → SS+
 

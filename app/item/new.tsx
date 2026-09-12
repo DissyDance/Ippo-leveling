@@ -8,6 +8,8 @@ import { StatPill } from '@/components/StatPill'
 import { TextField } from '@/components/TextField'
 import { Txt } from '@/components/Txt'
 import {
+  CATEGORIES,
+  CATEGORY_CONFIG,
   Colors,
   FIELD_CONFIG,
   FIELD_KEYS,
@@ -17,6 +19,7 @@ import {
   Radius,
   Spacing,
   STATS,
+  type Category,
   type Direction,
   type FieldKey,
   type Rank,
@@ -32,6 +35,7 @@ export default function NewItem() {
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [category, setCategory] = useState<Category | null>(null)
   const [stats, setStats] = useState<Stat[]>([])
   const [rank, setRank] = useState<Rank>('C')
   const [fields, setFields] = useState<FieldKey[]>([])
@@ -76,6 +80,7 @@ export default function NewItem() {
       await createItem({
         name: name.trim(),
         description: description.trim() || undefined,
+        category: category ?? undefined,
         statTargets: stats,
         rank,
         enabledFields: fields,
@@ -103,6 +108,22 @@ export default function NewItem() {
         placeholder="Variante, consignes…"
         autoCapitalize="sentences"
       />
+
+      <Section title="Catégorie (optionnel)">
+        <View style={styles.wrapRow}>
+          {CATEGORIES.map((c) => (
+            <Pressable
+              key={c}
+              onPress={() => setCategory((cur) => (cur === c ? null : c))}
+              style={[styles.fieldChip, category === c ? styles.fieldChipOn : null]}
+            >
+              <Txt variant="body" color={category === c ? Colors.primary : Colors.textMuted}>
+                {CATEGORY_CONFIG[c].label}
+              </Txt>
+            </Pressable>
+          ))}
+        </View>
+      </Section>
 
       <Section title="Caractéristiques ciblées">
         <View style={styles.wrapRow}>

@@ -10,7 +10,7 @@ import { v } from 'convex/values'
 import type { Doc, Id } from './_generated/dataModel'
 import type { QueryCtx } from './_generated/server'
 import { mutation, query } from './_generated/server'
-import { DIRECTION, FIELD_KEY, RANK, STAT } from './validators'
+import { CATEGORY, DIRECTION, FIELD_KEY, RANK, STAT } from './validators'
 import type { Direction, FieldKey, Stat } from '../src/constants/theme'
 
 /** Valide les invariants du §5.2. Lève une erreur explicite sinon. */
@@ -67,6 +67,7 @@ export const create = mutation({
   args: {
     name: v.string(),
     description: v.optional(v.string()),
+    category: v.optional(CATEGORY),
     statTargets: v.array(STAT),
     rank: RANK,
     enabledFields: v.array(FIELD_KEY),
@@ -83,6 +84,7 @@ export const create = mutation({
       userId,
       name: args.name.trim(),
       description: args.description,
+      category: args.category,
       statTargets: args.statTargets,
       rank: args.rank,
       enabledFields: args.enabledFields,
@@ -101,6 +103,8 @@ export const update = mutation({
     itemId: v.id('items'),
     name: v.optional(v.string()),
     description: v.optional(v.string()),
+    // null = retirer la catégorie ; undefined = ne pas toucher.
+    category: v.optional(v.union(CATEGORY, v.null())),
     statTargets: v.optional(v.array(STAT)),
     rank: v.optional(RANK),
     enabledFields: v.optional(v.array(FIELD_KEY)),
@@ -124,6 +128,7 @@ export const update = mutation({
     const patch: Partial<Doc<'items'>> = {}
     if (args.name !== undefined) patch.name = args.name.trim()
     if (args.description !== undefined) patch.description = args.description
+    if (args.category !== undefined) patch.category = args.category ?? undefined
     if (args.statTargets !== undefined) patch.statTargets = args.statTargets
     if (args.rank !== undefined) patch.rank = args.rank
     if (args.enabledFields !== undefined) patch.enabledFields = args.enabledFields
