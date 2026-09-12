@@ -21,9 +21,10 @@ import {
   type Stat,
 } from '@/constants/theme'
 
-type SortMode = 'recent' | 'rank' | 'sessions'
+type SortMode = 'stale' | 'recent' | 'rank' | 'sessions'
 
 const SORT_LABEL: Record<SortMode, string> = {
+  stale: 'À réentraîner',
   recent: 'Récence',
   rank: 'Rang',
   sessions: 'Sessions',
@@ -35,7 +36,7 @@ export default function RecordsScreen() {
   const [statFilter, setStatFilter] = useState<Stat | null>(null)
   const [rankFilter, setRankFilter] = useState<Rank | null>(null)
   const [categoryFilter, setCategoryFilter] = useState<Category | null>(null)
-  const [sort, setSort] = useState<SortMode>('recent')
+  const [sort, setSort] = useState<SortMode>('stale')
 
   const visible = useMemo(() => {
     if (!entries) return []
@@ -49,13 +50,17 @@ export default function RecordsScreen() {
     sorted.sort((a, b) => {
       if (sort === 'sessions') return b.item.sessionCount - a.item.sessionCount
       if (sort === 'rank') return RANKS.indexOf(b.item.rank) - RANKS.indexOf(a.item.rank)
+      // 'stale' : plus vieux (ou jamais entraîné) en premier → à réentraîner.
+      if (sort === 'stale') return (a.item.lastSessionAt ?? 0) - (b.item.lastSessionAt ?? 0)
       return (b.item.lastSessionAt ?? 0) - (a.item.lastSessionAt ?? 0)
     })
     return sorted
   }, [entries, statFilter, rankFilter, categoryFilter, sort])
 
   const cycleSort = () => {
-    setSort((s) => (s === 'recent' ? 'rank' : s === 'rank' ? 'sessions' : 'recent'))
+    setSort((s) =>
+      s === 'stale' ? 'recent' : s === 'recent' ? 'rank' : s === 'rank' ? 'sessions' : 'stale',
+    )
   }
 
   return (

@@ -17,6 +17,8 @@ export type RunFormValues = {
   performedAt: number
   distanceMeters: number
   durationSeconds: number
+  /** Pente moyenne en %. null = non renseignée (retire la valeur en édition). */
+  inclinePercent: number | null
 }
 
 type Props = {
@@ -53,12 +55,19 @@ export function RunForm({ initial, submitLabel, onSubmit, onDelete, deleting = f
     initial ? metersToKm(initial.distanceMeters).toString() : '',
   )
   const [timeStr, setTimeStr] = useState(initial ? hms(initial.durationSeconds) : '')
+  const [inclineStr, setInclineStr] = useState(
+    initial?.inclinePercent != null ? String(initial.inclinePercent) : '',
+  )
   const [saving, setSaving] = useState(false)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   const distanceMeters = parseDistanceKm(distanceStr)
   const durationSeconds = parseDuration(timeStr)
-  const valid = distanceMeters !== null && durationSeconds !== null
+  const inclineTrimmed = inclineStr.trim()
+  const inclineFormatValid = inclineTrimmed === '' || /^-?\d+([.,]\d+)?$/.test(inclineTrimmed)
+  const inclinePercent =
+    inclineTrimmed === '' ? null : Number.parseFloat(inclineTrimmed.replace(',', '.'))
+  const valid = distanceMeters !== null && durationSeconds !== null && inclineFormatValid
 
   const preview = useMemo(() => {
     if (distanceMeters === null || durationSeconds === null) return null
@@ -69,12 +78,17 @@ export function RunForm({ initial, submitLabel, onSubmit, onDelete, deleting = f
   }, [distanceMeters, durationSeconds])
 
   const submit = async () => {
-    if (distanceMeters === null || durationSeconds === null) return
+    if (distanceMeters === null || durationSeconds === null || !inclineFormatValid) return
     const parsedDate = Date.parse(dateStr)
     const performedAt = Number.isFinite(parsedDate) ? parsedDate : Date.now()
     setSaving(true)
     try {
-      await onSubmit({ performedAt, distanceMeters, durationSeconds })
+      await onSubmit({
+        performedAt,
+        distanceMeters,
+        durationSeconds,
+        inclinePercent: inclinePercent !== null && Number.isFinite(inclinePercent) ? inclinePercent : null,
+      })
     } finally {
       setSaving(false)
     }
@@ -102,6 +116,14 @@ export function RunForm({ initial, submitLabel, onSubmit, onDelete, deleting = f
         onChangeText={setTimeStr}
         placeholder="00:45:30"
         keyboardType="numbers-and-punctuation"
+      />
+
+      <TextField
+        label="Pente (%) — optionnel"
+        value={inclineStr}
+        onChangeText={setInclineStr}
+        placeholder="2.5"
+        keyboardType="numeric"
       />
 
       <View style={styles.preview}>

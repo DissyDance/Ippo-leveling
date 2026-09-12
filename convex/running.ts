@@ -17,6 +17,13 @@ function assertPositive(distanceMeters: number, durationSeconds: number): void {
   if (!(durationSeconds > 0)) throw new Error('Le temps doit être supérieur à 0.')
 }
 
+/** Pente facultative : si fournie, doit être un nombre fini. */
+function assertIncline(inclinePercent: number | null | undefined): void {
+  if (inclinePercent != null && !Number.isFinite(inclinePercent)) {
+    throw new Error('La pente doit être un nombre valide.')
+  }
+}
+
 export const list = query({
   args: {},
   handler: async (ctx): Promise<Doc<'runs'>[]> => {
@@ -46,16 +53,19 @@ export const record = mutation({
     performedAt: v.number(),
     distanceMeters: v.number(),
     durationSeconds: v.number(),
+    inclinePercent: v.optional(v.number()),
   },
   handler: async (ctx, args): Promise<Id<'runs'>> => {
     const userId = await getAuthUserId(ctx)
     if (!userId) throw new Error('Non authentifié')
     assertPositive(args.distanceMeters, args.durationSeconds)
+    assertIncline(args.inclinePercent)
     return await ctx.db.insert('runs', {
       userId,
       performedAt: args.performedAt,
       distanceMeters: args.distanceMeters,
       durationSeconds: args.durationSeconds,
+      inclinePercent: args.inclinePercent,
       createdAt: Date.now(),
     })
   },
@@ -67,6 +77,8 @@ export const update = mutation({
     performedAt: v.number(),
     distanceMeters: v.number(),
     durationSeconds: v.number(),
+    // null = retirer la pente ; undefined = laisser inchangée.
+    inclinePercent: v.optional(v.union(v.number(), v.null())),
   },
   handler: async (ctx, args): Promise<void> => {
     const userId = await getAuthUserId(ctx)
@@ -74,10 +86,12 @@ export const update = mutation({
     const run = await ctx.db.get(args.runId)
     if (!run || run.userId !== userId) throw new Error('Course introuvable')
     assertPositive(args.distanceMeters, args.durationSeconds)
+    assertIncline(args.inclinePercent)
     await ctx.db.patch(args.runId, {
       performedAt: args.performedAt,
       distanceMeters: args.distanceMeters,
       durationSeconds: args.durationSeconds,
+      inclinePercent: args.inclinePercent ?? undefined,
     })
   },
 })

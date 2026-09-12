@@ -57,6 +57,7 @@ export default function EditRun() {
         performedAt: run.performedAt,
         distanceMeters: run.distanceMeters,
         durationSeconds: run.durationSeconds,
+        inclinePercent: run.inclinePercent ?? null,
       }}
       submitLabel="Enregistrer"
       onSubmit={submit}

@@ -84,6 +84,7 @@ export default defineSchema({
     performedAt: v.number(), // jour de la course, pré-rempli au jour courant
     distanceMeters: v.number(), // > 0
     durationSeconds: v.number(), // > 0
+    inclinePercent: v.optional(v.number()), // pente moyenne, facultatif
     createdAt: v.number(),
   }).index('by_user_date', ['userId', 'performedAt']),
 

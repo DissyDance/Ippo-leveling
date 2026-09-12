@@ -8,7 +8,8 @@ export default function NewRun() {
   const record = useMutation(api.running.record)
 
   const submit = async (values: RunFormValues) => {
-    await record(values)
+    const { inclinePercent, ...rest } = values
+    await record({ ...rest, inclinePercent: inclinePercent ?? undefined })
     router.back()
   }
 

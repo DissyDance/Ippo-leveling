@@ -184,6 +184,7 @@ function RunRow({ run, onPress }: { run: Doc<'runs'>; onPress: () => void }) {
         </Txt>
         <Txt variant="caption" color={Colors.textMuted}>
           {dateLabel(run.performedAt)}
+          {run.inclinePercent != null ? ` · ${run.inclinePercent}% pente` : ''}
         </Txt>
       </View>
       <View style={styles.runRight}>
