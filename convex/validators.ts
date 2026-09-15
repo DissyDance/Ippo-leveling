@@ -50,13 +50,14 @@ export const DIRECTION = v.union(
   v.literal('lower_better'),
 )
 
-// --- Catégories (5), rangement optionnel des items ------------------------
+// --- Catégories (6), rangement optionnel des items ------------------------
 export const CATEGORY = v.union(
   v.literal('leg'),
   v.literal('arms'),
   v.literal('stamina'),
   v.literal('circuit'),
   v.literal('basics'),
+  v.literal('others'),
 )
 
 // --- Valeurs mesurées d'une session --------------------------------------

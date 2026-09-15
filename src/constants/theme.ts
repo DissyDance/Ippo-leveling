@@ -95,7 +95,7 @@ export const STAT_CONFIG = {
 // Catégories — regroupement optionnel des items dans le module Records
 // ---------------------------------------------------------------------------
 
-export const CATEGORIES = ['leg', 'arms', 'stamina', 'circuit', 'basics'] as const
+export const CATEGORIES = ['leg', 'arms', 'stamina', 'circuit', 'basics', 'others'] as const
 export type Category = (typeof CATEGORIES)[number]
 
 export const CATEGORY_CONFIG = {
@@ -104,6 +104,7 @@ export const CATEGORY_CONFIG = {
   stamina: { label: 'Stamina' },
   circuit: { label: 'Circuit' },
   basics:  { label: 'Basics' },
+  others:  { label: 'Others Workout' },
 } as const satisfies Record<Category, { label: string }>
 
 // ---------------------------------------------------------------------------
