@@ -14,6 +14,7 @@ export default function ItemLayout() {
     >
       <Stack.Screen name="new" options={{ title: 'Nouvel exercice', presentation: 'modal' }} />
       <Stack.Screen name="[id]/session" options={{ title: 'Session' }} />
+      <Stack.Screen name="[id]/history" options={{ title: 'Historique' }} />
       <Stack.Screen name="[id]/edit" options={{ title: 'Modifier l’exercice', presentation: 'modal' }} />
     </Stack>
   )

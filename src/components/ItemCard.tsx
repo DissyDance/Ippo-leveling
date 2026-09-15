@@ -21,9 +21,10 @@ type Props = {
   entry: ItemEntry
   onPress: () => void
   onEdit: () => void
+  onHistory: () => void
 }
 
-function ItemCardBase({ entry, onPress, onEdit }: Props) {
+function ItemCardBase({ entry, onPress, onEdit, onHistory }: Props) {
   const { item, record } = entry
   const primaryLabel = FIELD_CONFIG[item.primaryMetric].label
 
@@ -39,6 +40,17 @@ function ItemCardBase({ entry, onPress, onEdit }: Props) {
         </Txt>
         <View style={styles.headerRight}>
           <RankBadge rank={item.rank} />
+          <Pressable
+            onPress={onHistory}
+            accessibilityRole="button"
+            accessibilityLabel={`Historique de ${item.name}`}
+            hitSlop={Spacing.sm}
+            style={({ pressed }) => [styles.editBtn, pressed ? styles.editBtnPressed : null]}
+          >
+            <Txt variant="label" color={Colors.textSecondary}>
+              Historique
+            </Txt>
+          </Pressable>
           <Pressable
             onPress={onEdit}
             accessibilityRole="button"

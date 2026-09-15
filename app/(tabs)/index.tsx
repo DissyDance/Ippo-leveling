@@ -77,6 +77,9 @@ export default function RecordsScreen() {
             onEdit={() =>
               router.push({ pathname: '/item/[id]/edit', params: { id: entry.item._id } })
             }
+            onHistory={() =>
+              router.push({ pathname: '/item/[id]/history', params: { id: entry.item._id } })
+            }
           />
         )}
         ItemSeparatorComponent={() => <View style={styles.sep} />}
