@@ -27,6 +27,7 @@ import {
   type Stat,
 } from '@/constants/theme'
 import { useResponsive } from '@/hooks/useResponsive'
+import { formatNumber } from '@/utils/format'
 import { xpPerStat } from '@/utils/xp.utils'
 
 export default function EditItem() {
@@ -82,7 +83,20 @@ function EditForm({ itemId, item, updateItem, onDone }: EditFormProps) {
   const [target, setTarget] = useState(
     item.currentTarget !== undefined ? String(item.currentTarget) : '',
   )
+  // Unité de saisie de l'objectif chrono. Le stockage reste TOUJOURS en secondes.
+  const [targetUnit, setTargetUnit] = useState<'s' | 'min'>('s')
   const [saving, setSaving] = useState(false)
+
+  // Bascule secondes ⇄ minutes en convertissant la valeur saisie (équivalence).
+  const switchTargetUnit = (u: 's' | 'min') => {
+    if (u === targetUnit) return
+    const n = Number.parseFloat(target.replace(',', '.'))
+    if (Number.isFinite(n)) {
+      const seconds = targetUnit === 'min' ? n * 60 : n
+      setTarget(formatNumber(u === 'min' ? seconds / 60 : seconds))
+    }
+    setTargetUnit(u)
+  }
 
   const toggleStat = (s: Stat) =>
     setStats((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]))
@@ -103,6 +117,7 @@ function EditForm({ itemId, item, updateItem, onDone }: EditFormProps) {
   const selectPrimary = (f: FieldKey) => {
     setPrimary(f)
     setDirection(FIELD_CONFIG[f].defaultDirection)
+    if (f !== 'chrono') setTargetUnit('s')
   }
 
   const valid = name.trim().length > 0 && stats.length >= 1 && fields.length >= 1 && primary !== null
@@ -124,6 +139,9 @@ function EditForm({ itemId, item, updateItem, onDone }: EditFormProps) {
   const submit = async () => {
     if (!valid || primary === null) return
     const parsedTarget = Number.parseFloat(target.replace(',', '.'))
+    // Objectif chrono saisi en minutes → converti en secondes (unité canonique).
+    const targetSeconds =
+      primary === 'chrono' && targetUnit === 'min' ? parsedTarget * 60 : parsedTarget
     setSaving(true)
     try {
       await updateItem({
@@ -136,7 +154,7 @@ function EditForm({ itemId, item, updateItem, onDone }: EditFormProps) {
         enabledFields: fields,
         primaryMetric: primary,
         direction,
-        currentTarget: Number.isFinite(parsedTarget) ? parsedTarget : undefined,
+        currentTarget: Number.isFinite(targetSeconds) ? targetSeconds : undefined,
       })
       onDone()
     } finally {
@@ -258,13 +276,35 @@ function EditForm({ itemId, item, updateItem, onDone }: EditFormProps) {
           </View>
 
           {primary ? (
-            <TextField
-              label={`Objectif à atteindre (${FIELD_CONFIG[primary].unit})`}
-              value={target}
-              onChangeText={setTarget}
-              placeholder="Optionnel"
-              keyboardType="numeric"
-            />
+            <>
+              {primary === 'chrono' ? (
+                <View style={styles.wrapRow}>
+                  <DirectionButton
+                    active={targetUnit === 's'}
+                    label="secondes"
+                    onPress={() => switchTargetUnit('s')}
+                  />
+                  <DirectionButton
+                    active={targetUnit === 'min'}
+                    label="minutes"
+                    onPress={() => switchTargetUnit('min')}
+                  />
+                </View>
+              ) : null}
+              <TextField
+                label={`Objectif à atteindre (${
+                  primary === 'chrono'
+                    ? targetUnit === 'min'
+                      ? 'minutes'
+                      : 'secondes'
+                    : FIELD_CONFIG[primary].unit
+                })`}
+                value={target}
+                onChangeText={setTarget}
+                placeholder="Optionnel"
+                keyboardType="numeric"
+              />
+            </>
           ) : null}
         </Section>
       ) : null}
