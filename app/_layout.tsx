@@ -14,6 +14,7 @@ import { api } from '@convex/_generated/api'
 import { Colors } from '@/constants/theme'
 import { authStorage } from '@/lib/authStorage'
 import { convex } from '@/lib/convex'
+import { installWebHead } from '@/lib/webHead'
 
 void SplashScreen.preventAutoHideAsync()
 
@@ -63,6 +64,11 @@ export default function RootLayout() {
   useEffect(() => {
     if (fontsLoaded) void SplashScreen.hideAsync()
   }, [fontsLoaded])
+
+  // Métadonnées <head> web (favicon écran d'accueil, manifest PWA). No-op natif.
+  useEffect(() => {
+    installWebHead()
+  }, [])
 
   if (!fontsLoaded) return null
 
