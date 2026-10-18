@@ -11,7 +11,9 @@ import { TAB_ENTRIES } from './tabs.config'
 export const SIDENAV_WIDTH = 240
 
 // Destinations principales en haut ; Profil et Réglages épinglés en bas.
-const PRIMARY = TAB_ENTRIES.filter((e) => e.name === 'index' || e.name === 'running')
+const PRIMARY = TAB_ENTRIES.filter(
+  (e) => e.name === 'index' || e.name === 'running' || e.name === 'circuits',
+)
 const SECONDARY = TAB_ENTRIES.filter((e) => e.name === 'profile' || e.name === 'settings')
 
 function isActive(pathname: string, path: string): boolean {

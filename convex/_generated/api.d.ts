@@ -9,9 +9,11 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as circuits from "../circuits.js";
 import type * as feedback from "../feedback.js";
 import type * as http from "../http.js";
 import type * as items from "../items.js";
+import type * as master from "../master.js";
 import type * as model_consistency from "../model/consistency.js";
 import type * as model_player from "../model/player.js";
 import type * as players from "../players.js";
@@ -27,9 +29,11 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  circuits: typeof circuits;
   feedback: typeof feedback;
   http: typeof http;
   items: typeof items;
+  master: typeof master;
   "model/consistency": typeof model_consistency;
   "model/player": typeof model_player;
   players: typeof players;

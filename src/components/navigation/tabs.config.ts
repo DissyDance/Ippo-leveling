@@ -12,6 +12,7 @@ export type TabEntry = {
 export const TAB_ENTRIES: TabEntry[] = [
   { name: 'index', path: '/', label: 'Records', icon: 'trophy' },
   { name: 'running', path: '/running', label: 'Running', icon: 'run' },
+  { name: 'circuits', path: '/circuits', label: 'Circuits', icon: 'circuit' },
   { name: 'profile', path: '/profile', label: 'Profil', icon: 'user' },
   { name: 'settings', path: '/settings', label: 'Réglages', icon: 'gear' },
 ]

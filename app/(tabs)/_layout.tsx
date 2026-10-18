@@ -21,6 +21,7 @@ export default function TabsLayout() {
     >
       <Tabs.Screen name="index" options={{ title: 'Records' }} />
       <Tabs.Screen name="running" options={{ title: 'Running' }} />
+      <Tabs.Screen name="circuits" options={{ title: 'Circuits' }} />
       <Tabs.Screen name="profile" options={{ title: 'Profil' }} />
       <Tabs.Screen name="settings" options={{ title: 'Réglages' }} />
     </Tabs>

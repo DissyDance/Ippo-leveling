@@ -8,7 +8,7 @@
 import { defineSchema, defineTable } from 'convex/server'
 import { v } from 'convex/values'
 import { authTables } from '@convex-dev/auth/server'
-import { CATEGORY, DIRECTION, FIELD_KEY, RANK, SESSION_VALUES, STAT } from './validators'
+import { CATEGORY, CIRCUIT_EXERCISE, DIRECTION, FIELD_KEY, RANK, SESSION_VALUES, STAT } from './validators'
 
 export default defineSchema({
   // Tables de Convex Auth (users, authAccounts, authSessions, ...).
@@ -87,6 +87,46 @@ export default defineSchema({
     inclinePercent: v.optional(v.number()), // pente moyenne, facultatif
     createdAt: v.number(),
   }).index('by_user_date', ['userId', 'performedAt']),
+
+  // Module Circuits — enchaînements d'exercices autonomes (sans XP ni
+  // caractéristiques, comme Running). Les exercices sont stockés inline : ils
+  // n'ont AUCUN lien vers `items` et ne sont pas partageables. Le record du
+  // circuit n'est pas une table : c'est le pointeur `personalRecordSessionId`
+  // vers la séance au plus grand total de répétitions.
+  circuits: defineTable({
+    userId: v.id('users'),
+
+    name: v.string(),
+    description: v.optional(v.string()),
+    exercises: v.array(CIRCUIT_EXERCISE), // plan ordonné, non vide
+
+    personalRecordSessionId: v.optional(v.id('circuitSessions')),
+    sessionCount: v.number(),
+    lastSessionAt: v.optional(v.number()),
+
+    status: v.union(v.literal('active'), v.literal('archived')),
+    createdAt: v.number(),
+  }).index('by_user_status', ['userId', 'status']),
+
+  // Ledger append-only des séances de circuit. `entries` fige le détail
+  // reps+poids par exercice au moment de la séance ; `totalReps` est dénormalisé
+  // (somme des reps) et sert d'unique métrique comparée pour le record.
+  circuitSessions: defineTable({
+    userId: v.id('users'),
+    circuitId: v.id('circuits'),
+
+    performedAt: v.number(), // pré-rempli au jour courant, modifiable
+
+    entries: v.array(CIRCUIT_EXERCISE), // snapshot réalisé, par exercice
+    totalReps: v.number(), // dénormalisé = somme des reps des entries
+
+    notes: v.optional(v.string()),
+    isPersonalRecord: v.boolean(),
+
+    createdAt: v.number(),
+  })
+    .index('by_circuit_date', ['circuitId', 'performedAt'])
+    .index('by_user_date', ['userId', 'performedAt']),
 
   // Feedback joueurs. Lecture/suppression réservées à la CLI (internal).
   feedback: defineTable({

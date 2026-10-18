@@ -69,6 +69,17 @@ export const SESSION_VALUES = v.object({
   load: v.optional(v.number()),
 })
 
+// --- Exercice d'un circuit ------------------------------------------------
+// Les exercices d'un circuit sont AUTONOMES : aucun lien vers la table `items`,
+// non partageables (SPEC module Circuits). Le même objet sert deux usages :
+//   - dans `circuits.exercises` : le plan (poids + reps cibles) ;
+//   - dans `circuitSessions.entries` : le snapshot réellement réalisé.
+export const CIRCUIT_EXERCISE = v.object({
+  name: v.string(),
+  load: v.number(), // poids en kg (0 = poids du corps)
+  reps: v.number(), // nombre de répétitions
+})
+
 // --- Garde-fous de compilation : validators ⟺ design tokens ---------------
 // Si un validator diverge des tokens de theme.ts, l'un de ces alias devient
 // invalide et `tsc --noEmit` échoue. Aucun coût au runtime.

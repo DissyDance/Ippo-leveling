@@ -1,6 +1,6 @@
 import Svg, { Circle, Path } from 'react-native-svg'
 
-export type IconName = 'trophy' | 'user' | 'gear' | 'close' | 'run'
+export type IconName = 'trophy' | 'user' | 'gear' | 'close' | 'run' | 'circuit'
 
 type Props = {
   name: IconName
@@ -52,6 +52,14 @@ export function Icon({ name, size = 24, color = '#F5F3F0', stroke = 1.8 }: Props
         <>
           <Path d="M18 6 6 18" {...common} />
           <Path d="m6 6 12 12" {...common} />
+        </>
+      )}
+      {name === 'circuit' && (
+        <>
+          <Path d="m17 2 4 4-4 4" {...common} />
+          <Path d="M3 11v-1a4 4 0 0 1 4-4h14" {...common} />
+          <Path d="m7 22-4-4 4-4" {...common} />
+          <Path d="M21 13v1a4 4 0 0 1-4 4H3" {...common} />
         </>
       )}
       {name === 'run' && (
