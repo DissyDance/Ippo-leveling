@@ -84,7 +84,7 @@ export default function CircuitDetail() {
         {record ? (
           <>
             <Txt variant="recordValue" color={Colors.primary}>
-              {record.totalReps} <Txt variant="h3" color={Colors.textSecondary}>reps</Txt>
+              {record.circuitReps} <Txt variant="h3" color={Colors.textSecondary}>tours</Txt>
             </Txt>
             <Txt variant="caption" color={Colors.textMuted}>
               le {formatCircuitDate(record.performedAt)}
@@ -165,7 +165,7 @@ function SessionRow({ session }: { session: Doc<'circuitSessions'> }) {
         ) : null}
       </View>
       <Txt variant="h3" color={Colors.primary}>
-        {session.totalReps} reps
+        {session.circuitReps} tour{session.circuitReps > 1 ? 's' : ''}
       </Txt>
       <Txt variant="bodySmall" color={Colors.textSecondary}>
         {session.entries.map((e) => `${e.name} ${e.reps}`).join(' · ')}

@@ -109,8 +109,9 @@ export default defineSchema({
   }).index('by_user_status', ['userId', 'status']),
 
   // Ledger append-only des séances de circuit. `entries` fige le détail
-  // reps+poids par exercice au moment de la séance ; `totalReps` est dénormalisé
-  // (somme des reps) et sert d'unique métrique comparée pour le record.
+  // reps+poids par exercice au moment de la séance ; `circuitReps` est saisi par
+  // le joueur (nombre de fois où il a répété le circuit entier durant la séance)
+  // et sert d'unique métrique comparée pour le record — indépendant des entries.
   circuitSessions: defineTable({
     userId: v.id('users'),
     circuitId: v.id('circuits'),
@@ -118,7 +119,7 @@ export default defineSchema({
     performedAt: v.number(), // pré-rempli au jour courant, modifiable
 
     entries: v.array(CIRCUIT_EXERCISE), // snapshot réalisé, par exercice
-    totalReps: v.number(), // dénormalisé = somme des reps des entries
+    circuitReps: v.number(), // saisi par le joueur = nb de tours du circuit
 
     notes: v.optional(v.string()),
     isPersonalRecord: v.boolean(),

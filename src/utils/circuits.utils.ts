@@ -1,10 +1,9 @@
 /**
- * Circuits — calculs purs partagés (formulaire, liste, détail, séance).
+ * Circuits — helpers purs partagés (formulaire, liste, détail, séance).
  *
- * Le total de répétitions et le volume ne sont jamais stockés sur le circuit :
- * ils se dérivent ici depuis les exercices. `totalReps` est l'unique métrique
- * comparée pour battre le record d'un circuit (plus haut = mieux). Fonctions
- * pures, sans dépendance React/Convex.
+ * Le nombre de tours du circuit (métrique de record) est saisi par le joueur à
+ * chaque séance, jamais dérivé ici. Fonctions pures, sans dépendance
+ * React/Convex.
  */
 
 /** Un exercice de circuit : nom, poids (kg) et répétitions. Compatible Doc. */
@@ -12,19 +11,6 @@ export type CircuitExercise = {
   name: string
   load: number
   reps: number
-}
-
-/** Somme des répétitions sur l'ensemble des exercices. */
-export function totalReps(exercises: readonly CircuitExercise[]): number {
-  return exercises.reduce((acc, e) => acc + (Number.isFinite(e.reps) ? e.reps : 0), 0)
-}
-
-/** Volume total = Σ reps × poids (kg soulevés cumulés). */
-export function totalVolumeKg(exercises: readonly CircuitExercise[]): number {
-  return exercises.reduce(
-    (acc, e) => acc + (Number.isFinite(e.reps) && Number.isFinite(e.load) ? e.reps * e.load : 0),
-    0,
-  )
 }
 
 /** « 40 reps » / « 40 reps @ 20 kg » — une ligne d'exercice lisible. */

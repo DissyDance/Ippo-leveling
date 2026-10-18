@@ -75,7 +75,7 @@ function CircuitCard({ entry, onPress }: { entry: EnrichedCircuit; onPress: () =
           </Txt>
           {record ? (
             <Txt variant="h2" color={Colors.primary}>
-              {record.totalReps} <Txt variant="body" color={Colors.textSecondary}>reps</Txt>
+              {record.circuitReps} <Txt variant="body" color={Colors.textSecondary}>tours</Txt>
             </Txt>
           ) : (
             <Txt variant="body" color={Colors.textMuted}>

@@ -3,7 +3,7 @@
  *
  * Les exercices vivent inline dans `circuits.exercises` (aucun lien vers `items`,
  * non partageables). Le record du circuit = le pointeur `personalRecordSessionId`
- * vers la séance au plus grand `totalReps` (plus haut = mieux). Le ledger
+ * vers la séance au plus grand `circuitReps` (plus haut = mieux). Le ledger
  * `circuitSessions` est append-only : aucune mutation d'UPDATE/DELETE n'y est
  * exposée (sauf purge via `archive`, déclenchée explicitement par le joueur).
  *
@@ -135,40 +135,43 @@ export const update = mutation({
 })
 
 /**
- * Enregistre une séance de circuit (ledger append-only). Record battu si le
- * total de répétitions dépasse celui du record courant. Ne crédite aucune XP :
- * le module Circuits est autonome, comme Running.
+ * Enregistre une séance de circuit (ledger append-only). Le nombre de tours du
+ * circuit (`circuitReps`) est SAISI par le joueur, jamais déduit des entries :
+ * record battu s'il dépasse celui du record courant. Ne crédite aucune XP : le
+ * module Circuits est autonome, comme Running.
  */
 export const recordSession = mutation({
   args: {
     circuitId: v.id('circuits'),
     entries: v.array(CIRCUIT_EXERCISE),
+    circuitReps: v.number(),
     performedAt: v.number(),
     notes: v.optional(v.string()),
   },
   handler: async (
     ctx,
     args,
-  ): Promise<{ sessionId: Id<'circuitSessions'>; isPersonalRecord: boolean; totalReps: number }> => {
+  ): Promise<{ sessionId: Id<'circuitSessions'>; isPersonalRecord: boolean; circuitReps: number }> => {
     const userId = await getAuthUserId(ctx)
     if (!userId) throw new Error('Non authentifié')
     const circuit = await ctx.db.get(args.circuitId)
     if (!circuit || circuit.userId !== userId) throw new Error('Circuit introuvable')
     validateExercises(args.entries)
-
-    const totalReps = args.entries.reduce((acc, e) => acc + e.reps, 0)
+    if (!Number.isFinite(args.circuitReps) || args.circuitReps < 1) {
+      throw new Error('Indique combien de fois tu as répété le circuit (au moins 1).')
+    }
 
     const best = circuit.personalRecordSessionId
       ? await ctx.db.get(circuit.personalRecordSessionId)
       : null
-    const isPR = isBetter(totalReps, best?.totalReps, 'higher_better')
+    const isPR = isBetter(args.circuitReps, best?.circuitReps, 'higher_better')
 
     const sessionId = await ctx.db.insert('circuitSessions', {
       userId,
       circuitId: args.circuitId,
       performedAt: args.performedAt,
       entries: normalizeExercises(args.entries),
-      totalReps,
+      circuitReps: args.circuitReps,
       notes: args.notes?.trim() || undefined,
       isPersonalRecord: isPR,
       createdAt: Date.now(),
@@ -180,7 +183,7 @@ export const recordSession = mutation({
       ...(isPR ? { personalRecordSessionId: sessionId } : {}),
     })
 
-    return { sessionId, isPersonalRecord: isPR, totalReps }
+    return { sessionId, isPersonalRecord: isPR, circuitReps: args.circuitReps }
   },
 })
 

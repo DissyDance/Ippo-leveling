@@ -14,7 +14,7 @@ import { useResponsive } from '@/hooks/useResponsive'
 import { formatExercise } from '@/utils/circuits.utils'
 
 type Row = { repsStr: string; loadStr: string }
-type Result = { isPersonalRecord: boolean; totalReps: number }
+type Result = { isPersonalRecord: boolean; circuitReps: number }
 
 const toISODate = (ms: number): string => new Date(ms).toISOString().slice(0, 10)
 const TODAY_ISO = toISODate(Date.now())
@@ -95,6 +95,8 @@ function SessionForm({
     })),
   )
   const [dateStr, setDateStr] = useState(TODAY_ISO)
+  // Nombre de tours du circuit, saisi par le joueur — métrique du record.
+  const [circuitRepsStr, setCircuitRepsStr] = useState('')
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
   const [result, setResult] = useState<Result | null>(null)
@@ -102,12 +104,13 @@ function SessionForm({
   const setRow = (index: number, patch: Partial<Row>) =>
     setRows((prev) => prev.map((r, i) => (i === index ? { ...r, ...patch } : r)))
 
-  const parsedReps = rows.map((r) => parseNum(r.repsStr))
-  const allRepsValid = parsedReps.every((n) => n !== null)
-  const liveTotal = parsedReps.reduce<number>((acc, n) => acc + (n ?? 0), 0)
+  const allRepsValid = rows.every((r) => parseNum(r.repsStr) !== null)
+  const parsedCircuitReps = parseNum(circuitRepsStr)
+  const circuitRepsValid = parsedCircuitReps !== null && parsedCircuitReps >= 1
+  const valid = allRepsValid && circuitRepsValid
 
   const submit = async () => {
-    if (!allRepsValid) return
+    if (!valid || parsedCircuitReps === null) return
     const entries = circuit.exercises.map((e, i) => {
       const row = rows[i] ?? { repsStr: '', loadStr: '' }
       const reps = parseNum(row.repsStr) ?? 0
@@ -122,10 +125,11 @@ function SessionForm({
       const res = await recordSession({
         circuitId,
         entries,
+        circuitReps: parsedCircuitReps,
         performedAt,
         notes: notes.trim() || undefined,
       })
-      setResult({ isPersonalRecord: res.isPersonalRecord, totalReps: res.totalReps })
+      setResult({ isPersonalRecord: res.isPersonalRecord, circuitReps: res.circuitReps })
     } finally {
       setSaving(false)
     }
@@ -165,10 +169,10 @@ function SessionForm({
 
         <View style={styles.recapCard}>
           <Txt variant="label" color={Colors.textSecondary}>
-            TOTAL DE RÉPÉTITIONS
+            RÉPÉTITIONS DU CIRCUIT
           </Txt>
           <Txt variant="recordValue" color={Colors.primary}>
-            {result.totalReps}
+            {result.circuitReps}
           </Txt>
         </View>
 
@@ -227,11 +231,19 @@ function SessionForm({
 
       <View style={styles.totalBox}>
         <Txt variant="label" color={Colors.textSecondary}>
-          TOTAL DE RÉPÉTITIONS
+          RÉPÉTITIONS DU CIRCUIT
         </Txt>
-        <Txt variant="h2" color={Colors.primary}>
-          {liveTotal}
+        <Txt variant="bodySmall" color={Colors.textMuted}>
+          Combien de fois as-tu enchaîné le circuit entier ? C’est la métrique
+          comparée pour ton record.
         </Txt>
+        <TextField
+          label="Nombre de tours"
+          value={circuitRepsStr}
+          onChangeText={setCircuitRepsStr}
+          placeholder="3"
+          keyboardType="numeric"
+        />
       </View>
 
       <TextField
@@ -241,12 +253,7 @@ function SessionForm({
         autoCapitalize="sentences"
       />
 
-      <Button
-        label="Enregistrer la séance"
-        onPress={submit}
-        loading={saving}
-        disabled={!allRepsValid}
-      />
+      <Button label="Enregistrer la séance" onPress={submit} loading={saving} disabled={!valid} />
     </ScrollView>
   )
 }
